@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Finanzen">
+<meta name="robots" content="noindex, nofollow">
+<title>Finanzmappe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F1F0EA; --card:#FAF9F5; --tab:#E6E4D9; --ink:#1B2523; --mute:#69736F; --line:#D8D6CA;
+  --petrol:#1E5B5E; --ochre:#C08A2B; --slate:#5B6F93; --plum:#8A5A7A;
+  --good:#3C7A4B; --bad:#9A3B34; --r:10px;
+  --serif:'Fraunces',Georgia,serif; --sans:'Karla',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:18px 16px 80px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:4px 2px 14px}
+header h1{font-family:var(--serif);font-weight:600;font-size:28px;margin:0;letter-spacing:-.01em}
+header .who{color:var(--mute);font-size:14px;margin-left:10px;font-weight:400}
+.linkbtn{background:none;border:0;color:var(--mute);cursor:pointer;font-size:14px;padding:6px 4px;text-decoration:underline;text-underline-offset:3px}
+nav{display:flex;gap:4px;overflow-x:auto;padding:0 2px;margin-bottom:-1px;position:relative;z-index:1;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;border:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--tab);padding:10px 18px;border-radius:var(--r) var(--r) 0 0;cursor:pointer;color:var(--mute);font-weight:500}
+nav button.on{background:var(--card);color:var(--ink);border-bottom-color:var(--card);font-weight:700}
+.sheet{background:var(--card);border:1px solid var(--line);border-radius:0 var(--r) var(--r) var(--r);padding:26px 24px;min-height:420px}
+h2{font-family:var(--serif);font-weight:600;font-size:22px;margin:0 0 4px}
+h3{font-family:var(--serif);font-weight:600;font-size:18px;margin:0}
+.muted{color:var(--mute)}
+.small{font-size:14px}
+.row{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.btn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:8px;padding:9px 16px;cursor:pointer;font-weight:700}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.sm{padding:6px 12px;font-size:14px}
+.btn.danger{background:transparent;color:var(--bad);border-color:var(--bad)}
+.btn:focus-visible,nav button:focus-visible,.linkbtn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--petrol);outline-offset:2px}
+.num{font-family:var(--serif);font-variant-numeric:lining-nums tabular-nums}
+
+/* Übersicht: Restschuld */
+.hero{padding-bottom:26px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.hero .big{font-family:var(--serif);font-size:clamp(44px,9vw,76px);font-weight:600;letter-spacing:-.02em;line-height:1.05;margin:2px 0 6px}
+.bar{display:flex;gap:4px;height:34px;margin:18px 0 12px}
+.seg{border-radius:6px;overflow:hidden;background:repeating-linear-gradient(135deg,#D3D1C4 0 5px,#E6E4D9 5px 10px);min-width:8px}
+.seg i{display:block;height:100%}
+.legend{display:flex;gap:22px;flex-wrap:wrap}
+.legend div{font-size:14px}
+.legend b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:7px}
+.note{border-left:3px solid var(--ochre);background:#F4EEDC;padding:10px 14px;border-radius:0 8px 8px 0;margin:0 0 12px;font-size:15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.fig{display:flex;gap:26px;flex-wrap:wrap;margin:10px 0 14px}
+.fig div span{display:block;font-size:13px;color:var(--mute)}
+.fig div strong{font-family:var(--serif);font-size:24px;font-weight:600}
+.mini{margin:10px 0}
+.mini .t{display:flex;justify-content:space-between;font-size:14px;margin-bottom:3px}
+.track{height:7px;background:#E2E0D5;border-radius:4px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--petrol);border-radius:4px}
+.track i.over{background:var(--bad)}
+
+/* Karten */
+.item{border:1px solid var(--line);border-radius:var(--r);padding:18px;margin:16px 0;background:#fff}
+.item .head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+dl.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px 22px;margin:16px 0 4px}
+dl.facts dt{font-size:13px;color:var(--mute)}
+dl.facts dd{margin:0;font-weight:700}
+.pill{display:inline-block;font-size:13px;padding:2px 10px;border-radius:99px;border:1px solid var(--line);color:var(--mute);margin-left:6px}
+.pill.run{border-color:var(--petrol);color:var(--petrol)}
+.pill.done{border-color:var(--good);color:var(--good)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}
+.chip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:99px;padding:3px 12px;font-size:14px;color:var(--ink);text-decoration:none;background:var(--card);max-width:100%}
+.chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
+.chip button{border:0;background:none;cursor:pointer;color:var(--mute);padding:0 0 0 2px;font-size:16px;line-height:1}
+.lines{margin:12px 0 0}
+.lines button{display:flex;width:100%;justify-content:space-between;gap:12px;text-align:left;border:0;border-top:1px solid var(--line);background:none;padding:10px 2px;cursor:pointer}
+.lines button:hover{background:#F6F5EF}
+.empty{padding:34px 0;text-align:center;color:var(--mute)}
+.empty .btn{margin-top:14px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+td,th{text-align:left;padding:8px 6px;border-top:1px solid var(--line);vertical-align:top}
+td.r,th.r{text-align:right}
+.years{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+.years button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 16px;cursor:pointer}
+.years button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+input.search{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;margin:12px 0}
+
+/* Dialog */
+.ov{position:fixed;inset:0;background:rgba(27,37,35,.45);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(20px,env(safe-area-inset-top)) 14px 40px;z-index:20}
+.ov[hidden]{display:none}
+.dlg{background:var(--card);border-radius:14px;padding:22px;width:100%;max-width:560px;margin-top:4vh}
+.dlg h2{margin-bottom:14px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fld{display:flex;flex-direction:column;gap:4px;grid-column:1/-1}
+.fld.half{grid-column:auto}
+.fld span{font-size:13px;color:var(--mute)}
+.fld input,.fld select,.fld textarea{padding:10px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;width:100%;font-size:16px}
+.fld.bad input,.fld.bad select{border-color:var(--bad)}
+.acts{display:flex;gap:10px;justify-content:space-between;margin-top:18px;flex-wrap:wrap}
+.acts div{display:flex;gap:10px}
+.files{grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px}
+.files .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.status{font-size:14px;color:var(--mute);margin-top:6px;min-height:20px}
+
+/* Sperre */
+#lock{position:fixed;inset:0;background:var(--paper);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}
+#lock[hidden]{display:none}
+#lock .box{width:100%;max-width:340px;text-align:center}
+#lock h1{font-family:var(--serif);font-size:30px;margin:0 0 6px}
+#lock input{width:100%;padding:14px;font-size:24px;text-align:center;letter-spacing:.4em;border:1px solid var(--line);border-radius:10px;margin:18px 0 12px;background:#fff}
+#lock .btn{width:100%}
+#lock .msg{min-height:22px;color:var(--bad);font-size:14px;margin-top:10px}
+
+/* Schlankes Ausgabenformular */
+.sx .top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.sx .top h2{margin:0;font-size:19px;text-align:center;flex:1}
+.rb{width:42px;height:42px;flex:0 0 42px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:20px;cursor:pointer;line-height:1}
+.rb.ok{background:var(--ink);color:#fff;border-color:var(--ink)}
+.sxin{width:100%;border:0;border-bottom:2px solid var(--line);background:transparent;padding:10px 2px;font-size:20px;border-radius:0;margin:12px 0 4px}
+.sxin.amt{font-family:var(--serif);font-size:36px;font-weight:600}
+.sxin:focus{outline:none;border-bottom-color:var(--petrol)}
+.sxin.bad{border-bottom-color:var(--bad)}
+.pillbtn{display:block;margin:18px auto 6px;border:1px solid var(--ink);background:#fff;border-radius:10px;padding:10px 16px;cursor:pointer;text-align:center;max-width:100%}
+.sxbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);padding-top:14px;margin-top:20px}
+.sxbar>*{border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;font-size:15px;cursor:pointer}
+.opt{display:block;width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;padding:14px 4px;cursor:pointer}
+.opt.on{background:#EAF1EE}
+.opt .res{display:block;color:var(--petrol);font-size:15px;margin-top:2px}
+.opt .res.owe{color:#A8641A}
+.more{border-top:1px solid var(--line);padding-top:12px;margin-top:6px}
+@media (max-width:760px){
+  .grid{grid-template-columns:1fr;gap:10px}
+  .sheet{padding:20px 14px}
+  .form{grid-template-columns:1fr}
+  .fld.half{grid-column:1/-1}
+  header h1{font-size:24px}
+  header .who{display:block;margin:0}
+}
+
+/* Teilen: Gruppen */
+.gl{margin:6px 0 0}
+.gl button{display:flex;width:100%;gap:14px;align-items:flex-start;text-align:left;border:0;border-top:1px solid var(--line);background:none;padding:14px 2px;cursor:pointer}
+.gl button:hover{background:#F6F5EF}
+.gico{flex:0 0 48px;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--serif);font-weight:600;font-size:22px}
+.gmain{flex:1;min-width:0}
+.gtop{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:48px}
+.gtop .t{font-weight:700;font-size:17px}
+.gtop .r{text-align:right;font-size:13px;color:var(--mute);white-space:nowrap}
+.gtop .r strong{display:block;font-family:var(--serif);font-size:18px;font-weight:600}
+.gsub{display:block;font-size:14px;color:var(--mute);margin-top:2px}
+.owe{color:var(--bad)} .get{color:var(--good)}
+.gfoot{text-align:center;margin:22px 0 6px;color:var(--mute);font-size:14px}
+@media (max-width:760px){.gico{flex-basis:42px;width:42px;height:42px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="lock" hidden>
+  <div class="box">
+    <h1>Finanzmappe</h1>
+    <div class="muted" id="lockHint">PIN eingeben</div>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" aria-label="PIN">
+    <button class="btn" id="pinGo">Öffnen</button>
+    <div class="msg" id="pinMsg"></div>
+  </div>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <header>
+    <h1>Finanzmappe<span class="who">Unsere Finanzen im Blick</span></h1>
+    <button class="linkbtn" data-act="lock">Sperren</button>
+  </header>
+  <nav id="tabs" aria-label="Bereiche"></nav>
+  <main class="sheet" id="sheet"></main>
+</div>
+
+<div class="ov" id="modal" hidden><div class="dlg" role="dialog" aria-modal="true"></div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import { getStorage, ref as sref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBFbKIBKr0gr621e8XSljAG4lGXOSrIxwo",
+  authDomain: "homedashboard-8d951.firebaseapp.com",
+  projectId: "homedashboard-8d951",
+  storageBucket: "homedashboard-8d951.firebasestorage.app",
+  messagingSenderId: "443725141758",
+  appId: "1:443725141758:web:64331ff8100f27acd037af"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+const COL = 'household', NS = 'finanzen:';
+
+/* ---------- Daten ---------- */
+const DEF = { loans:[], projects:[], tax:{belege:[],jahre:{}}, docs:[], split:[], groups:[], settings:{} };
+const clone = o => JSON.parse(JSON.stringify(o));
+const state = clone(DEF);
+const last = {};
+let busy = 0, modalOpen = false, unlocked = false;
+const PERSONS = ['Christian','Julia'];
+let ICH = 'Christian'; try{ ICH = localStorage.getItem('fin_ich') || 'Christian'; }catch(e){}
+const other = n => n==='Christian' ? 'Julia' : 'Christian';
+const ui = { sgroup:null, showSettled:false, tab:'home', year:new Date().getFullYear(), person:'Christian', smonth:new Date().toISOString().slice(0,7) };
+
+function parseValue(v){ if(typeof v==='string'){ try{ return JSON.parse(v); }catch(e){ return v; } } return v; }
+async function loadKey(k){
+  const s = await getDoc(doc(db, COL, NS+k));
+  return s.exists() ? parseValue(s.data().value) : null;
+}
+async function save(k){
+  busy++;
+  try{
+    const v = clone(state[k]);
+    await setDoc(doc(db, COL, NS+k), { value:v, updatedAt:Date.now() });
+    last[k] = JSON.stringify(v);
+  }catch(e){ alert('Speichern fehlgeschlagen. Bitte Verbindung prüfen.'); }
+  finally{ busy--; }
+}
+
+/* ---------- Helfer ---------- */
+const uid = () => Math.random().toString(36).slice(2,9);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sum = a => a.reduce((x,y)=>x+(+y||0),0);
+const eur = n => new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n||0);
+const eur2 = n => new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(n||0);
+const dt = s => s ? new Date(s+'T00:00:00').toLocaleDateString('de-DE') : '';
+const mon = idx => new Date(Math.floor(idx/12), idx%12, 1).toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+const ym = s => { const [y,m] = String(s).split('-'); return [+y, (+m||1)-1]; };
+const todayStr = () => new Date().toISOString().slice(0,10);
+const COLORS = ['var(--petrol)','var(--ochre)','var(--slate)','var(--plum)'];
+const parseNum = v => {
+  let s = String(v ?? '').trim(); if(s==='') return '';
+  if(s.includes(',')) s = s.replace(/\./g,'').replace(',','.');
+  const n = Number(s); return isNaN(n) ? '' : n;
+};
+const pct = (a,b) => b>0 ? Math.max(0,Math.min(100,a/b*100)) : 0;
+
+/* ---------- Kredit Rechnung ---------- */
+function sim(l){
+  const r = (+l.zins||0)/100/12, rate = +l.rate||0;
+  const now = new Date(), tm = now.getFullYear()*12+now.getMonth();
+  let bal, cur;
+  const hasStand = l.standDatum && l.standBetrag !== '' && l.standBetrag != null;
+  if(hasStand){ bal = +l.standBetrag; const [y,m]=ym(l.standDatum); cur=y*12+m; }
+  else { bal = +l.summe||0; const [y,m]=ym(l.start||todayStr()); cur=y*12+m; }
+  const startIdx = cur;
+  let zb = null;
+  if(l.zinsbindung){ const [y,m]=ym(l.zinsbindung); zb = y*12+m; }
+  else if(+l.zinsbindungJahre && l.start){ const [y,m]=ym(l.start); zb = y*12+m+Math.round(l.zinsbindungJahre*12); }
+  const startOrig = l.start ? (()=>{ const [y,m]=ym(l.start); return y*12+m; })() : startIdx;
+  const tfree = Math.max(0, (+l.tilgungsfrei||0) - Math.max(0, startIdx - startOrig));
+  const sonder = {};
+  (l.sonder||[]).forEach(s=>{ const [y,m]=ym(s.datum); const k=y*12+m; if(k>startIdx) sonder[k]=(sonder[k]||0)+(+s.betrag||0); });
+  let nowBal = bal, zbBal = (zb!==null && zb<=startIdx) ? bal : null, payoff = null, intFuture = 0;
+  const stuck = bal>0.005 && rate <= bal*r;
+  for(let i=0; i<1200 && bal>0.005 && !stuck; i++){
+    cur++;
+    const it = bal*r, pay = i<tfree ? it : Math.min(rate, bal+it);
+    bal = bal+it-pay;
+    const so = Math.min(sonder[cur]||0, bal); bal -= so;
+    if(cur<=tm) nowBal = bal; else intFuture += it;
+    if(zb!==null && cur===zb) zbBal = bal;
+    if(bal<=0.005){ bal=0; payoff=cur; if(cur<=tm) nowBal=0; if(zb!==null && zbBal===null) zbBal=0; break; }
+  }
+  return { nowBal, payoff, intFuture, zbBal, zb, stuck };
+}
+
+/* ---------- Steuer Daten ---------- */
+const TAXCATS = ['Handwerkerleistungen (§ 35a)','Haushaltsnahe Dienstleistungen (§ 35a)','Werbungskosten','Spenden','Versicherungen','Zinsen und Bankbescheinigungen','Bescheid und Erklärung','Sonstiges'];
+function taxItems(){
+  const own = state.tax.belege.map(b=>({...b, person:b.person||'Christian', src:'own'}));
+  const der = [];
+  state.projects.forEach(p=>(p.ausgaben||[]).forEach((a,i)=>{
+    if(a.steuer && a.steuer!=='Keine'){
+      der.push({ person:a.person||'Christian', id:'x'+p.id+i, jahr:(a.datum||'').slice(0,4), titel:a.text+' ('+p.name+')', kategorie:a.steuer, betrag:a.betrag, arbeit:a.arbeit, datum:a.datum, files:a.files||[], src:'proj', pid:p.id, i });
+    }
+  }));
+  return own.concat(der);
+}
+function taxYears(){
+  const s = new Set([String(new Date().getFullYear())]);
+  taxItems().forEach(b=>b.jahr && s.add(String(b.jahr)));
+  Object.keys(state.tax.jahre||{}).forEach(k=>s.add(k.split(':')[0]));
+  s.add(String(ui.year));
+  return [...s].sort((a,b)=>b-a);
+}
+function taxCalc(y, person){
+  const items = taxItems().filter(b=>String(b.jahr)===String(y) && b.person===person);
+  const byCat = {}; items.forEach(b=>{ byCat[b.kategorie]=(byCat[b.kategorie]||0)+(+b.betrag||0); });
+  const lab = c => sum(items.filter(b=>b.kategorie===c).map(b=>b.arbeit!==''&&b.arbeit!=null ? b.arbeit : b.betrag));
+  const hw = Math.min(lab(TAXCATS[0])*0.2, 1200), hn = Math.min(lab(TAXCATS[1])*0.2, 4000);
+  return { items, byCat, total:sum(items.map(b=>b.betrag)), hw, hn };
+}
+
+/* ---------- Dateien ---------- */
+async function shrink(file){
+  try{
+    const bmp = await createImageBitmap(file);
+    const max = 2000, sc = Math.min(1, max/Math.max(bmp.width,bmp.height));
+    const c = document.createElement('canvas'); c.width = Math.round(bmp.width*sc); c.height = Math.round(bmp.height*sc);
+    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const blob = await new Promise(r=>c.toBlob(r,'image/jpeg',0.85));
+    return blob || file;
+  }catch(e){ return file; }
+}
+async function uploadFile(file, folder){
+  const isImg = file.type.startsWith('image/');
+  const blob = isImg ? await shrink(file) : file;
+  let name = file.name || 'Foto';
+  if(isImg && !/\.jpe?g$/i.test(name)) name = name.replace(/\.\w+$/,'') + '.jpg';
+  const path = 'finanzen/'+folder+'/'+Date.now()+'_'+name.replace(/[^\w.]+/g,'_');
+  const r = sref(storage, path);
+  await uploadBytes(r, blob, { contentType: blob.type || file.type });
+  const url = await getDownloadURL(r);
+  return { name, url, path, type: blob.type||file.type, size: blob.size, at: Date.now() };
+}
+async function dropFile(f){ try{ await deleteObject(sref(storage, f.path)); }catch(e){} }
+const chip = f => `<a class="chip" href="${esc(f.url)}" target="_blank" rel="noopener"><span>${esc(f.name)}</span></a>`;
+const filesOf = o => [...(o.files||[]), ...((o.ausgaben||[]).flatMap(a=>a.files||[]))];
+
+/* ---------- Dialog ---------- */
+function fld(f, v){
+  const id = 'f_'+f.k; let inp;
+  if(f.t==='select') inp = `<select id="${id}">${f.o.map(o=>`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+  else if(f.t==='area') inp = `<textarea id="${id}" rows="3">${esc(v)}</textarea>`;
+  else if(f.t==='num') inp = `<input id="${id}" inputmode="decimal" autocomplete="off" value="${esc(String(v ?? '').replace('.',','))}">`;
+  else if(f.t==='date') inp = `<input id="${id}" type="date" value="${esc(v)}">`;
+  else inp = `<input id="${id}" autocomplete="off" value="${esc(v)}">`;
+  return `<label class="fld${f.w?' half':''}" data-k="${f.k}"><span>${f.l}${f.req?' *':''}</span>${inp}</label>`;
+}
+function openForm({ title, fields, values={}, files=null, folder='misc', onSave, onDelete, delFiles }){
+  const m = { files: files ? [...files] : null, added: [], removed: [] };
+  const box = document.querySelector('#modal .dlg');
+  box.innerHTML = `<h2>${esc(title)}</h2><form class="form" id="mf">
+    ${fields.map(f=>fld(f, values[f.k])).join('')}
+    ${files ? `<div class="files"><span class="small muted">Dokumente (PDF oder Foto)</span><div class="chips" id="mchips"></div>
+      <div class="btns"><button type="button" class="btn ghost sm" id="mPick">Datei wählen</button><button type="button" class="btn ghost sm" id="mCam">Foto aufnehmen</button></div>
+      <input type="file" id="fPick" accept="application/pdf,image/*" multiple hidden><input type="file" id="fCam" accept="image/*" capture="environment" hidden>
+      <div class="status" id="mstat"></div></div>` : ''}
+    <div class="acts" style="grid-column:1/-1"><div>${onDelete?'<button type="button" class="btn danger" id="mDel">Löschen</button>':''}</div><div><button type="button" class="btn ghost" id="mCancel">Abbrechen</button><button class="btn" id="mSave">Speichern</button></div></div>
+  </form>`;
+  const ov = document.getElementById('modal'); ov.hidden = false; modalOpen = true;
+  const close = () => { ov.hidden = true; modalOpen = false; box.innerHTML=''; };
+  const paint = () => {
+    if(!files) return;
+    document.getElementById('mchips').innerHTML = m.files.map((f,i)=>`<span class="chip"><a href="${esc(f.url)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none"><span>${esc(f.name)}</span></a><button type="button" data-rm="${i}" aria-label="Entfernen">×</button></span>`).join('');
+  };
+  paint();
+  if(files){
+    const stat = document.getElementById('mstat');
+    const handle = async list => {
+      for(const file of list){
+        stat.textContent = 'Lade hoch: '+file.name+' …';
+        try{ const f = await uploadFile(file, folder); m.files.push(f); m.added.push(f); paint(); stat.textContent=''; }
+        catch(e){ stat.textContent = 'Upload fehlgeschlagen für '+file.name; }
+      }
+    };
+    document.getElementById('mPick').onclick = () => document.getElementById('fPick').click();
+    document.getElementById('mCam').onclick = () => document.getElementById('fCam').click();
+    document.getElementById('fPick').onchange = e => { handle([...e.target.files]); e.target.value=''; };
+    document.getElementById('fCam').onchange = e => { handle([...e.target.files]); e.target.value=''; };
+    document.getElementById('mchips').onclick = e => {
+      const b = e.target.closest('[data-rm]'); if(!b) return;
+      const [f] = m.files.splice(+b.dataset.rm,1);
+      if(m.added.includes(f)){ m.added = m.added.filter(x=>x!==f); dropFile(f); } else m.removed.push(f);
+      paint();
+    };
+  }
+  document.getElementById('mCancel').onclick = () => { m.added.forEach(dropFile); close(); };
+  if(onDelete) document.getElementById('mDel').onclick = async () => {
+    if(!confirm('Wirklich löschen?')) return;
+    if(delFiles) for(const f of delFiles()) await dropFile(f);
+    await onDelete(); close();
+  };
+  document.getElementById('mf').onsubmit = async e => {
+    e.preventDefault();
+    const out = {}; let ok = true;
+    fields.forEach(f=>{
+      const el = document.getElementById('f_'+f.k); let v = el.value;
+      if(f.t==='num') v = parseNum(v); else v = v.trim();
+      const row = el.closest('.fld'); const bad = f.req && (v===''); row.classList.toggle('bad', bad); if(bad) ok = false;
+      out[f.k] = v;
+    });
+    if(!ok) return;
+    for(const f of m.removed) await dropFile(f);
+    await onSave(out, m.files);
+    close();
+  };
+  const first = box.querySelector('input,select,textarea'); if(first && !/Mobi|iPad|iPhone/.test(navigator.userAgent)) first.focus();
+}
+
+/* ---------- Ansichten ---------- */
+const TABS = [['home','Übersicht'],['split','Teilen'],['kredit','Kredit'],['haus','Haus'],['steuer','Steuern'],['docs','Dokumente']];
+function render(){
+  document.getElementById('tabs').innerHTML = TABS.map(([k,l])=>`<button class="${ui.tab===k?'on':''}" data-act="tab" data-id="${k}">${l}</button>`).join('');
+  const v = { home:vHome, kredit:vKredit, haus:vHaus, steuer:vSteuer, split:vSplit, docs:vDocs }[ui.tab]();
+  const sheet = document.getElementById('sheet'); const y = window.scrollY;
+  sheet.innerHTML = v; window.scrollTo(0,y);
+}
+
+function vHome(){
+  const L = state.loans.map((l,i)=>({ l, s:sim(l), c:COLORS[i%4] }));
+  const total = sum(L.map(x=>x.l.summe)), rest = sum(L.map(x=>x.s.nowBal));
+  const rates = sum(L.map(x=>x.l.rate)), intF = sum(L.map(x=>x.s.intFuture));
+  let h = '';
+  if(!L.length){
+    h += `<section class="hero"><div class="muted">Restschuld heute</div><div class="big num">0 €</div>
+      <div class="muted">Lege unter Kredit eure beiden Darlehen an, dann seht ihr hier Restschuld, Rate und Zinsbindung.</div>
+      <p><button class="btn" data-act="addloan">Kredit anlegen</button></p></section>`;
+  } else {
+    const tilg = total>0 ? Math.round((1-rest/total)*100) : 0;
+    h += `<section class="hero"><div class="muted">Restschuld heute</div><div class="big num">${eur(rest)}</div>
+      <div>${tilg} Prozent von ${eur(total)} getilgt. Monatliche Rate zusammen ${eur(rates)}, voraussichtliche Zinsen bis zum Ende ${eur(intF)}.</div>
+      <div class="bar" role="img" aria-label="Restschuld je Bank">${L.map(x=>`<div class="seg" style="flex:${+x.l.summe||1}"><i style="width:${pct(x.s.nowBal,x.l.summe)}%;background:${x.c}"></i></div>`).join('')}</div>
+      <div class="legend">${L.map(x=>`<div><b style="background:${x.c}"></b>${esc(x.l.bank)}: <strong class="num">${eur(x.s.nowBal)}</strong> offen, Rate ${eur(x.l.rate)}</div>`).join('')}</div></section>`;
+    const nowIdx = new Date().getFullYear()*12+new Date().getMonth();
+    L.forEach(x=>{
+      if(x.s.zb!==null && x.s.zb>=nowIdx && x.s.zb-nowIdx<=36 && (x.s.payoff===null || x.s.payoff>x.s.zb)){
+        h += `<p class="note">Die Zinsbindung bei ${esc(x.l.bank)} endet ${mon(x.s.zb)}. Restschuld dann voraussichtlich ${eur(x.s.zbBal)}. Die Anschlussfinanzierung rechtzeitig klären.</p>`;
+      }
+    });
+  }
+  // Haus + Steuer
+  const P = state.projects, bud = sum(P.map(p=>p.budget)), spent = sum(P.map(p=>sum((p.ausgaben||[]).map(a=>a.betrag))));
+  const spentB = sum(P.filter(p=>+p.budget>0).map(p=>sum((p.ausgaben||[]).map(a=>a.betrag))));
+  const openN = P.filter(p=>p.status!=='Fertig').length;
+  const running = P.filter(p=>p.status!=='Fertig' && (+p.budget>0 || (p.ausgaben||[]).length)).slice(0,4);
+  const cy = new Date().getFullYear(), tcs = PERSONS.map(n=>({ n, c:taxCalc(cy, n) }));
+  h += `<div class="grid"><section><h2>Haus</h2>
+    ${P.length ? `<div class="fig"><div><span>Budget</span><strong>${eur(bud)}</strong></div><div><span>Ausgegeben</span><strong>${eur(spent)}</strong></div><div><span>Offen</span><strong>${eur(bud-spentB)}</strong></div></div>
+      <p class="small" style="margin:0 0 6px">${openN} von ${P.length} Projekten offen.</p>
+      ${running.map(p=>{ const s=sum((p.ausgaben||[]).map(a=>a.betrag)); const hb=+p.budget>0; return `<div class="mini"><div class="t"><span>${esc(p.name)}</span><span class="num">${hb?eur(s)+' von '+eur(p.budget):eur(s)}</span></div><div class="track"><i class="${hb&&s>p.budget?'over':''}" style="width:${hb?pct(s,p.budget):0}%"></i></div></div>`; }).join('')}
+      <button class="btn ghost sm" data-act="tab" data-id="haus">Zu den Projekten</button>`
+      : `<p class="muted">Noch keine Projekte. Hier landen Umbauten, Anschaffungen und Investitionen am Haus.</p><button class="btn ghost sm" data-act="addproj">Projekt anlegen</button>`}
+  </section><section><h2>Steuern ${cy}</h2>
+    ${tcs.map(x=>`<div class="mini"><div class="t"><strong>${x.n}</strong><span class="num">${x.c.items.length} Belege, ${eur(x.c.total)}</span></div><div class="muted small">Ermäßigung geschätzt ${eur(x.c.hw+x.c.hn)}</div></div>`).join('')}
+    <p class="muted small">Belege und Bescheide getrennt für Julia und Christian sammeln.</p>
+    <button class="btn ghost sm" data-act="tab" data-id="steuer">Zu den Steuern</button>
+  </section></div>`;
+  h += `<section style="margin-top:26px;padding-top:22px;border-top:1px solid var(--line)"><h2>Geteilte Ausgaben</h2><div class="num" style="font-size:24px;font-weight:600;margin:6px 0 10px">${state.split.length?balText(netChristian(state.split)):'Noch nichts eingetragen'}</div><button class="btn ghost sm" data-act="addsplit">Ausgabe hinzufügen</button> <button class="btn ghost sm" data-act="tab" data-id="split">Zur Aufteilung</button></section>`;
+  return h;
+}
+
+function vKredit(){
+  if(!state.loans.length) return `<div class="empty"><h2>Noch kein Kredit angelegt</h2><div>Legt jedes Darlehen einzeln an, jeweils mit seiner Bank.</div><button class="btn" data-act="addloan">Kredit anlegen</button></div>`;
+  let h = `<div class="row"><div><h2>Kredit</h2><div class="muted small">Berechnet aus Darlehen, Zins und Rate, nach der Zinsbindung mit gleichem Zins weiter. Mit dem Stand laut Bank wird die Rechnung korrigiert.</div></div><button class="btn" data-act="addloan">Kredit hinzufügen</button></div>`;
+  state.loans.forEach((l,i)=>{
+    const s = sim(l), c = COLORS[i%4];
+    h += `<article class="item"><div class="head"><div><h3>${esc(l.bank)}</h3><div class="muted small">${esc(l.name||'')}</div></div>
+      <div style="text-align:right"><div class="muted small">Restschuld</div><div class="num" style="font-size:28px;font-weight:600">${eur(s.nowBal)}</div></div></div>
+      <div class="track" style="margin-top:12px"><i style="width:${100-pct(s.nowBal,l.summe)}%;background:${c}"></i></div>
+      ${s.stuck?`<p class="note" style="margin-top:12px">Die Rate deckt die Zinsen nicht. Bitte Rate oder Zinssatz prüfen.</p>`:''}
+      <dl class="facts">
+        <div><dt>Darlehen</dt><dd>${eur(l.summe)}</dd></div>
+        <div><dt>Zinssatz</dt><dd>${String(l.zins??'').replace('.',',')} Prozent</dd></div>
+        <div><dt>Rate im Monat</dt><dd>${eur2(l.rate)}</dd></div>
+        <div><dt>Start</dt><dd>${l.start?dt(l.start):'bitte eintragen'}</dd></div>
+        ${+l.tilgungsfrei?`<div><dt>Tilgungsfrei</dt><dd>${l.tilgungsfrei} Monate</dd></div>`:''}
+        <div><dt>Zinsbindung bis</dt><dd>${l.zinsbindung?dt(l.zinsbindung):s.zb!==null?mon(s.zb):(l.zinsbindungJahre?l.zinsbindungJahre+' Jahre ab Start':'offen')}</dd></div>
+        <div><dt>Restschuld bei Zinsbindungsende</dt><dd>${s.zbBal!=null?eur(s.zbBal):'offen'}</dd></div>
+        <div><dt>Voraussichtlich abbezahlt</dt><dd>${s.payoff?mon(s.payoff):'nicht berechenbar'}</dd></div>
+        <div><dt>Zinsen noch</dt><dd>${eur(s.intFuture)}</dd></div>
+        ${l.standDatum?`<div><dt>Stand laut Bank</dt><dd>${eur(l.standBetrag)} am ${dt(l.standDatum)}</dd></div>`:''}
+      </dl>
+      ${(l.sonder||[]).length?`<div class="small muted" style="margin-top:12px">Sondertilgungen</div><div class="chips">${l.sonder.map((x,j)=>`<span class="chip"><span>${dt(x.datum)}: ${eur(x.betrag)}</span><button data-act="delsonder" data-id="${l.id}" data-i="${j}" aria-label="Entfernen">×</button></span>`).join('')}</div>`:''}
+      ${(l.files||[]).length?`<div class="chips">${l.files.map(chip).join('')}</div>`:''}
+      ${l.notiz?`<p class="small muted">${esc(l.notiz)}</p>`:''}
+      <div class="row" style="margin-top:14px;justify-content:flex-start"><button class="btn ghost sm" data-act="editloan" data-id="${l.id}">Bearbeiten und Dokumente</button><button class="btn ghost sm" data-act="sonder" data-id="${l.id}">Sondertilgung</button></div></article>`;
+  });
+  return h;
+}
+
+function vHaus(){
+  const P = state.projects;
+  if(!P.length) return `<div class="empty"><h2>Noch keine Projekte</h2><div>Umbauten, Anschaffungen und Investitionen am Haus, jeweils mit Budget und Ausgaben.</div><button class="btn" data-act="addproj">Projekt anlegen</button></div>`;
+  const bud = sum(P.map(p=>p.budget)), spent = sum(P.map(p=>sum((p.ausgaben||[]).map(a=>a.betrag))));
+  const spentB = sum(P.filter(p=>+p.budget>0).map(p=>sum((p.ausgaben||[]).map(a=>a.betrag))));
+  let h = `<div class="row"><div><h2>Haus</h2><div class="fig"><div><span>Budget gesamt</span><strong>${eur(bud)}</strong></div><div><span>Ausgegeben</span><strong>${eur(spent)}</strong></div><div><span>Noch offen</span><strong>${eur(bud-spentB)}</strong></div></div></div><button class="btn" data-act="addproj">Projekt hinzufügen</button></div>`;
+  const ord = { 'Läuft':0, 'Geplant':1, 'Fertig':2 };
+  [...P].sort((a,b)=>(ord[a.status]??1)-(ord[b.status]??1)).forEach(p=>{
+    const hb = +p.budget>0;
+    const A = (p.ausgaben||[]).map((a,i)=>({a,i})).sort((x,y)=>(y.a.datum||'').localeCompare(x.a.datum||''));
+    const s = sum(A.map(x=>x.a.betrag));
+    h += `<article class="item"><div class="head"><div><h3>${esc(p.name)}<span class="pill ${p.status==='Läuft'?'run':p.status==='Fertig'?'done':''}">${esc(p.status)}</span></h3><div class="muted small">${esc(p.kategorie)}${p.notiz?': '+esc(p.notiz):''}</div></div>
+      <div style="text-align:right"><div class="num" style="font-size:24px;font-weight:600">${eur(s)}</div><div class="muted small">${hb?'von '+eur(p.budget)+' Budget':'kein Budget festgelegt'}</div></div></div>
+      ${hb?`<div class="track" style="margin-top:12px"><i class="${s>p.budget?'over':''}" style="width:${pct(s,p.budget)}%"></i></div>`:''}
+      ${hb&&s>p.budget?`<p class="small" style="color:var(--bad);margin:8px 0 0">Budget um ${eur(s-p.budget)} überschritten.</p>`:''}
+      ${(p.files||[]).length?`<div class="chips">${p.files.map(chip).join('')}</div>`:''}
+      ${A.length?`<div class="lines">${A.map(({a,i})=>`<button data-act="editexp" data-id="${p.id}" data-i="${i}"><span>${a.datum?dt(a.datum)+'  ':''}${esc(a.text)}${(a.files||[]).length?' (Beleg)':''}${a.steuer&&a.steuer!=='Keine'?' (Steuer)':''}</span><span class="num">${eur2(a.betrag)}</span></button>`).join('')}</div>`:''}
+      <div class="row" style="margin-top:14px;justify-content:flex-start"><button class="btn sm" data-act="addexp" data-id="${p.id}">Ausgabe hinzufügen</button><button class="btn ghost sm" data-act="editproj" data-id="${p.id}">Bearbeiten und Dokumente</button>${p.status!=='Fertig'?`<button class="btn ghost sm" data-act="done" data-id="${p.id}">Als erledigt markieren</button>`:''}</div></article>`;
+  });
+  return h;
+}
+
+function vSteuer(){
+  const years = taxYears(), y = String(ui.year), c = taxCalc(y, ui.person), res = (state.tax.jahre||{})[y+':'+ui.person];
+  let h = `<div class="row"><div><h2>Steuern</h2><div class="muted small">Belege, Bescheide und Unterlagen je Person und Steuerjahr.</div></div><button class="btn" data-act="addbeleg">Beleg hinzufügen</button></div>
+    <div class="years" aria-label="Person">${PERSONS.map(n=>`<button class="${n===ui.person?'on':''}" data-act="person" data-id="${n}">${n}</button>`).join('')}</div>
+    <div class="years">${years.map(x=>`<button class="${x===y?'on':''}" data-act="year" data-id="${x}">${x}</button>`).join('')}<button data-act="addyear">Jahr hinzufügen</button></div>
+    <div class="fig"><div><span>Belege</span><strong>${c.items.length}</strong></div><div><span>Summe</span><strong>${eur(c.total)}</strong></div>
+      <div><span>Ermäßigung Handwerker</span><strong>${eur(c.hw)}</strong></div><div><span>Ermäßigung Haushaltsnahe</span><strong>${eur(c.hn)}</strong></div></div>
+    <p class="muted small">Schätzung aus 20 Prozent der Arbeitskosten, höchstens 1.200 € für Handwerker und 4.000 € für Haushaltsnahe Dienstleistungen. Zur Orientierung, keine Steuerberatung.</p>
+    <div class="item" style="margin-top:8px"><div class="row"><div><strong>Steuerbescheid ${y} für ${ui.person}</strong><div class="muted small">${res&&res.art&&res.art!=='Offen'?esc(res.art)+': '+eur2(res.betrag)+(res.notiz?'. '+esc(res.notiz):''):'Noch kein Ergebnis eingetragen.'}</div></div><button class="btn ghost sm" data-act="editjahr">Ergebnis eintragen</button></div></div>`;
+  if(!c.items.length) return h + `<div class="empty">Für ${ui.person} sind für ${y} noch keine Belege hinterlegt.</div>`;
+  const cats = Object.keys(c.byCat);
+  h += `<h3 style="margin-top:22px">Nach Kategorie</h3><table>${cats.map(k=>`<tr><td>${esc(k)}</td><td class="r num">${eur2(c.byCat[k])}</td></tr>`).join('')}</table>
+    <h3 style="margin-top:22px">Belege</h3><div class="lines">${c.items.sort((a,b)=>(b.datum||'').localeCompare(a.datum||'')).map(b=>{
+      const act = b.src==='proj' ? `data-act="editexp" data-id="${b.pid}" data-i="${b.i}"` : `data-act="editbeleg" data-id="${b.id}"`;
+      return `<button ${act}><span>${b.datum?dt(b.datum)+'  ':''}${esc(b.titel)}<span class="muted small"> (${esc(b.kategorie)}${(b.files||[]).length?', '+b.files.length+' Datei'+(b.files.length>1?'en':''):''})</span></span><span class="num">${b.betrag!==''&&b.betrag!=null?eur2(b.betrag):''}</span></button>`; }).join('')}</div>`;
+  return h;
+}
+
+const SCAT = ['Lebensmittel','Restaurant und Café','Haushalt','Freizeit','Auto und Fahren','Reise','Wohnen und Rechnungen','Sonstiges'];
+const SMODI = ['Gleichmäßig','Nur für Christian','Nur für Julia','Anteil in Prozent'];
+function shareOf(e){
+  const b = +e.betrag||0; let c;
+  if(e.modus==='Nur für Christian') c = b;
+  else if(e.modus==='Nur für Julia') c = 0;
+  else if(e.modus==='Anteil in Prozent') c = b*Math.min(100,Math.max(0,+e.prozent||0))/100;
+  else c = b/2;
+  return { Christian:c, Julia:b-c };
+}
+function netChristian(list){ // positiv: Julia schuldet Christian
+  let n = 0;
+  list.forEach(e=>{
+    const b = +e.betrag||0;
+    if(e.typ==='ausgleich') n += e.von==='Christian' ? b : -b;
+    else n += (e.zahler==='Christian' ? b : 0) - shareOf(e).Christian;
+  });
+  return n;
+}
+function balText(n){
+  if(n>0.005) return `Julia schuldet Christian ${eur2(n)}`;
+  if(n<-0.005) return `Christian schuldet Julia ${eur2(-n)}`;
+  return 'Alles ausgeglichen';
+}
+
+/* ---------- Teilen: Gruppen ---------- */
+const GPAL = ['#8E2640','#C0432A','#3FA58A','#5B6F93','#8A5A7A','#C08A2B'];
+const gOf = e => e.gruppe || 'solo';
+function allGroups(){
+  const g = state.groups.slice();
+  if(!g.some(x=>x.id==='solo')) g.push({ id:'solo', name:'Ausgabe ohne Gruppe', color:'#3FA58A', special:true });
+  return g;
+}
+const groupById = id => allGroups().find(g=>g.id===id) || { id:'solo', name:'Ausgabe ohne Gruppe', color:'#3FA58A', special:true };
+const entriesOf = id => state.split.filter(e=>gOf(e)===id);
+const myNet = list => { const n = netChristian(list); return ICH==='Christian' ? n : -n; }; // positiv: der andere schuldet mir
+function lastDate(list){ return list.reduce((m,e)=>(e.datum||'')>m?(e.datum||''):m,''); }
+function groupSettled(g){
+  const l = entriesOf(g.id);
+  if(g.special || !l.length || Math.abs(netChristian(l))>0.005) return false;
+  const d = lastDate(l); if(!d) return false;
+  return (Date.now() - new Date(d+'T12:00:00').getTime()) > 7*864e5;
+}
+function groupLine(g){
+  const m = myNet(entriesOf(g.id)), o = other(ICH);
+  if(m<-0.005) return `Du schuldest ${esc(o)} <span class="owe">${eur2(-m)}</span>`;
+  if(m>0.005) return `${esc(o)} schuldet dir <span class="get">${eur2(m)}</span>`;
+  return '';
+}
+async function seedGruppenOnce(){
+  if(state.settings.seedGruppen) return;
+  if(!state.groups.length){
+    state.groups = [
+      { id:'g_darlehen', name:'Darlehen SF 5%', color:'#8E2640' },
+      { id:'g_haushalt', name:'Haushalt', color:'#C0432A' },
+      { id:'solo', name:'Ausgabe ohne Gruppe', color:'#3FA58A', special:true }
+    ];
+    await save('groups');
+  }
+  const mk = (gruppe,text,betrag) => ({ id:uid(), typ:'ausgabe', text, betrag, datum:todayStr(), zahler:'Julia', kategorie:'Wohnen und Rechnungen', modus:'Nur für Christian', prozent:50, files:[], gruppe });
+  if(!state.split.some(e=>e.gruppe==='g_darlehen')) state.split.push(mk('g_darlehen','Darlehen',10300));
+  if(!state.split.some(e=>e.gruppe==='g_haushalt')) state.split.push(mk('g_haushalt','Offener Betrag',25779.04));
+  await save('split');
+  state.settings = { ...state.settings, seedGruppen:true };
+  await save('settings');
+}
+function vGroups(){
+  const groups = allGroups();
+  const total = myNet(state.split);
+  const sentence = !state.split.length ? 'Noch nichts eingetragen' : total<-0.005 ? 'Insgesamt schuldest du' : total>0.005 ? 'Insgesamt bekommst du' : 'Insgesamt seid ihr quitt';
+  const hidden = groups.filter(groupSettled).length;
+  let h = `<div class="row"><div><h2>Teilen</h2><div class="muted small">Gruppen für gemeinsame Ausgaben und Schulden zwischen Christian und Julia.</div></div>
+    <div class="row" style="gap:8px"><button class="btn" data-act="addsplit">Ausgabe hinzufügen</button><button class="btn ghost" data-act="addgroup">Gruppe erstellen</button></div></div>
+    <section class="hero" style="margin-top:18px;padding-bottom:20px"><div class="muted">${sentence}</div><div class="big num ${total<-0.005?'owe':total>0.005?'get':''}" style="font-size:clamp(30px,6vw,48px)">${eur2(Math.abs(total))}</div></section>
+    <div class="gl">`;
+  groups.forEach(g=>{
+    if(!ui.showSettled && groupSettled(g)) return;
+    const m = myNet(entriesOf(g.id)), line = groupLine(g);
+    const right = m<-0.005 ? `Du hast Schulden bei<strong class="owe">${eur2(-m)}</strong>` : m>0.005 ? `Du bekommst<strong class="get">${eur2(m)}</strong>` : 'quitt';
+    h += `<button data-act="sgroup" data-id="${esc(g.id)}"><span class="gico" style="background:${esc(g.color||'#1E5B5E')}">${esc((g.name||'?').charAt(0).toUpperCase())}</span><span class="gmain"><span class="gtop"><span class="t">${esc(g.name)}</span><span class="r">${right}</span></span>${line?`<span class="gsub">${line}</span>`:''}</span></button>`;
+  });
+  h += `</div>`;
+  if(hidden) h += `<div class="gfoot">${ui.showSettled?'Alle Gruppen werden angezeigt.':'Gruppen verborgen, weil die Schulden vor über 7 Tagen beglichen wurden.'}</div><div style="text-align:center"><button class="btn ghost" data-act="gsettled">${ui.showSettled?'Beglichene Gruppen verbergen':hidden+(hidden===1?' Gruppe':' Gruppen')+' mit beglichenen Schulden anzeigen'}</button></div>`;
+  return h;
+}
+function editGroup(id){
+  const g = id ? state.groups.find(x=>x.id===id) : null;
+  openForm({ title: g ? 'Gruppe bearbeiten' : 'Gruppe erstellen', values: g || { name:'' },
+    fields:[{ k:'name', l:'Name der Gruppe', req:true }],
+    onSave: async v=>{
+      if(g) g.name = v.name;
+      else { const ng = { id:'g'+uid(), name:v.name, color:GPAL[state.groups.length%GPAL.length] }; state.groups.push(ng); }
+      await save('groups'); render(); },
+    onDelete: (g && !g.special) ? async()=>{
+      state.split = state.split.filter(e=>gOf(e)!==g.id);
+      state.groups = state.groups.filter(x=>x!==g);
+      ui.sgroup = null;
+      await save('split'); await save('groups'); render(); } : null,
+    delFiles: ()=> g ? entriesOf(g.id).flatMap(e=>e.files||[]) : [] });
+}
+function vSplit(){
+  if(!ui.sgroup || !allGroups().some(g=>g.id===ui.sgroup)) return vGroups();
+  const grp = groupById(ui.sgroup);
+  const all = entriesOf(ui.sgroup), n = netChristian(all);
+  const [yy,mm] = ui.smonth.split('-').map(Number);
+  const label = new Date(yy,mm-1,1).toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+  const list = all.filter(e=>(e.datum||'').slice(0,7)===ui.smonth).sort((a,b)=>(b.datum||'').localeCompare(a.datum||''));
+  const ex = list.filter(e=>e.typ!=='ausgleich');
+  const total = sum(ex.map(e=>e.betrag));
+  const paid = n2 => sum(ex.filter(e=>e.zahler===n2).map(e=>e.betrag));
+  const share = n2 => sum(ex.map(e=>shareOf(e)[n2]));
+  const cats = {}; ex.forEach(e=>{ const k=e.kategorie||'Sonstiges'; cats[k]=(cats[k]||0)+(+e.betrag||0); });
+  let h = `<div class="row"><div><button class="linkbtn" data-act="sback" style="padding-left:0">‹ Alle Gruppen</button><h2>${esc(grp.name)}</h2><div class="muted small"><button class="linkbtn" data-act="editgroup" data-id="${esc(grp.id)}" style="padding:0">Gruppe bearbeiten</button></div></div>
+    <div class="row" style="gap:8px"><button class="btn" data-act="addsplit">Ausgabe hinzufügen</button><button class="btn ghost" data-act="ausgleich">Ausgleich buchen</button></div></div>
+    <section class="hero" style="margin-top:18px;padding-bottom:20px"><div class="muted">Aktueller Stand</div><div class="big num" style="font-size:clamp(30px,6vw,48px)">${all.length?balText(n):'Noch nichts eingetragen'}</div>
+    ${all.length&&Math.abs(n)>0.005?`<div class="muted small">Nach der Überweisung unter Ausgleich buchen eintragen, dann steht der Stand wieder auf null.</div>`:''}</section>
+    <div class="row"><div style="display:flex;gap:6px;align-items:center"><button class="btn ghost sm" data-act="smonth" data-id="-1" aria-label="Voriger Monat">‹</button><strong class="num" style="min-width:150px;text-align:center">${label}</strong><button class="btn ghost sm" data-act="smonth" data-id="1" aria-label="Nächster Monat">›</button></div>
+    <div class="muted small">Ausgaben im Monat: <strong class="num">${eur2(total)}</strong></div></div>`;
+  if(!list.length) return h + `<div class="empty">Für ${label} ist noch nichts eingetragen.</div>`;
+  h += `<div class="fig"><div><span>Christian zahlte</span><strong>${eur2(paid('Christian'))}</strong></div><div><span>Julia zahlte</span><strong>${eur2(paid('Julia'))}</strong></div>
+    <div><span>Anteil Christian</span><strong>${eur2(share('Christian'))}</strong></div><div><span>Anteil Julia</span><strong>${eur2(share('Julia'))}</strong></div></div>`;
+  const ck = Object.keys(cats).sort((a,b)=>cats[b]-cats[a]);
+  if(ck.length) h += `<table>${ck.map(k=>`<tr><td>${esc(k)}</td><td class="r num">${eur2(cats[k])}</td></tr>`).join('')}</table>`;
+  h += `<div class="lines" style="margin-top:18px">${list.map(e=>{
+    if(e.typ==='ausgleich') return `<button data-act="ausgleich" data-id="${e.id}"><span>${dt(e.datum)}  Ausgleich: ${esc(e.von)} an ${esc(e.an)}</span><span class="num">${eur2(e.betrag)}</span></button>`;
+    const how = e.modus==='Anteil in Prozent' ? `Christian ${String(e.prozent).replace('.',',')} Prozent` : e.modus;
+    return `<button data-act="editsplit" data-id="${e.id}"><span>${dt(e.datum)}  ${esc(e.text)}<span class="muted small"> (${esc(e.zahler)} zahlte, ${esc(how)}, ${esc(e.kategorie||'Sonstiges')}${(e.files||[]).length?', Beleg':''})</span></span><span class="num">${eur2(e.betrag)}</span></button>`;
+  }).join('')}</div>`;
+  return h;
+}
+function editSplit(id){ openSplitForm(id ? state.split.find(x=>x.id===id) : null); }
+function openSplitForm(e){
+  const s = e ? { ...e, betrag:String(e.betrag??'').replace('.',','), prozent:e.prozent??50, files:[...(e.files||[])] }
+              : { text:'', betrag:'', datum:todayStr(), gruppe:(ui.sgroup||'solo'), zahler:ICH, modus:SMODI[0], prozent:50, kategorie:SCAT[0], files:[] };
+  const added = [], removed = [];
+  let view = 'main', more = false, bad = {};
+  const box = document.querySelector('#modal .dlg'), ov = document.getElementById('modal');
+  const who = n => n===ICH ? 'dir' : n;
+  const howText = () => {
+    if(s.modus==='Gleichmäßig') return `Gezahlt von ${who(s.zahler)} und gleichmäßig geteilt`;
+    if(s.modus==='Anteil in Prozent') return `Gezahlt von ${who(s.zahler)}, Christian trägt ${String(s.prozent).replace('.',',')} Prozent`;
+    const f = s.modus.replace('Nur für ','');
+    return `Gezahlt von ${who(s.zahler)}, nur für ${f===ICH?'dich':f}`;
+  };
+  const close = () => { ov.hidden = true; modalOpen = false; box.innerHTML = ''; box.onclick = null; box.oninput = null; box.onchange = null; };
+  const paintMain = () => {
+    box.innerHTML = `<div class="sx"><div class="top"><button type="button" class="rb" data-x="cancel" aria-label="Abbrechen">×</button><h2>${e?'Ausgabe bearbeiten':'Ausgabe hinzufügen'}</h2><button type="button" class="rb ok" data-x="save" aria-label="Speichern">✓</button></div>
+      <input class="sxin ${bad.text?'bad':''}" id="sText" placeholder="Beschreibung eingeben" value="${esc(s.text)}" autocomplete="off" aria-label="Beschreibung">
+      <input class="sxin amt ${bad.betrag?'bad':''}" id="sAmt" inputmode="decimal" placeholder="0,00" value="${esc(s.betrag)}" autocomplete="off" aria-label="Betrag in Euro">
+      <button type="button" class="pillbtn" data-x="how">${esc(howText())}</button>
+      <div class="sxbar"><input type="date" id="sDate" value="${esc(s.datum)}" aria-label="Datum"><select id="sCat" aria-label="Kategorie">${SCAT.map(c=>`<option ${c===s.kategorie?'selected':''}>${esc(c)}</option>`).join('')}</select><select id="sGrp" aria-label="Gruppe">${allGroups().map(g=>`<option value="${esc(g.id)}" ${g.id===gOf(s)?'selected':''}>${esc(g.name)}</option>`).join('')}</select><button type="button" data-x="file">Beleg${s.files.length?' ('+s.files.length+')':''}</button></div>
+      <div class="chips">${s.files.map((f,i)=>`<span class="chip"><a href="${esc(f.url)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none"><span>${esc(f.name)}</span></a><button type="button" data-rm="${i}" aria-label="Entfernen">×</button></span>`).join('')}</div>
+      <div class="status" id="sStat"></div>
+      ${e?'<div style="margin-top:8px"><button type="button" class="linkbtn" data-x="del" style="color:var(--bad)">Ausgabe löschen</button></div>':''}
+      <input type="file" id="sPick" accept="image/*,application/pdf" multiple hidden></div>`;
+  };
+  const paintPick = () => {
+    const P = ICH, O = other(P), b = parseNum(s.betrag) || 0;
+    const opts = [
+      [P,'Gleichmäßig','Du hast bezahlt, gleichmäßig aufteilen.',`${O} schuldet dir ${eur2(b/2)}.`,false],
+      [P,'Nur für '+O,'Du bekommst den gesamten Betrag.',`${O} schuldet dir ${eur2(b)}.`,false],
+      [O,'Gleichmäßig',`${O} hat bezahlt, gleichmäßig aufteilen.`,`Du schuldest ${O} ${eur2(b/2)}.`,true],
+      [O,'Nur für '+P,`${O} bekommt den gesamten Betrag.`,`Du schuldest ${O} ${eur2(b)}.`,true]
+    ];
+    box.innerHTML = `<div class="sx"><div class="top"><button type="button" class="rb" data-x="back" aria-label="Zurück">‹</button><h2>Wie wurde diese Ausgabe aufgeteilt?</h2><span style="width:42px"></span></div>
+      ${opts.map((o,i)=>`<button type="button" class="opt ${s.zahler===o[0]&&s.modus===o[1]?'on':''}" data-opt="${i}">${esc(o[2])}<span class="res ${o[4]?'owe':''}">${esc(o[3])}</span></button>`).join('')}
+      <div style="text-align:center;margin:14px 0 4px"><button type="button" class="btn ghost sm" data-x="more">Mehr Optionen</button></div>
+      ${more?`<div class="more"><div class="small muted">Wer hat bezahlt</div><div class="years">${PERSONS.map(n=>`<button type="button" class="${n===s.zahler?'on':''}" data-pay="${n}">${n}</button>`).join('')}</div>
+        <label class="fld"><span>Anteil von Christian in Prozent</span><input id="sPct" inputmode="decimal" value="${esc(String(s.prozent).replace('.',','))}"></label>
+        <div style="margin-top:10px"><button type="button" class="btn sm" data-x="pct">Übernehmen</button></div></div>`:''}
+      <div class="more"><div class="small muted">Dieses Gerät gehört zu</div><div class="years">${PERSONS.map(n=>`<button type="button" class="${n===ICH?'on':''}" data-ich="${n}">${n}</button>`).join('')}</div></div></div>`;
+    s._opts = opts;
+  };
+  const paint = () => view==='main' ? paintMain() : paintPick();
+  const handle = async list => {
+    for(const file of list){
+      const st = document.getElementById('sStat'); if(st) st.textContent = 'Lade hoch: '+file.name+' …';
+      try{ const f = await uploadFile(file, 'teilen'); s.files.push(f); added.push(f); }
+      catch(err){ if(st) st.textContent = 'Upload fehlgeschlagen für '+file.name; return; }
+      if(view==='main') paint();
+    }
+  };
+  const doSave = async () => {
+    const b = parseNum(s.betrag);
+    bad = { text: !String(s.text).trim(), betrag: !(b>0) };
+    if(bad.text || bad.betrag){ paint(); return; }
+    for(const f of removed) await dropFile(f);
+    const v = { text:String(s.text).trim(), betrag:b, datum:s.datum||todayStr(), gruppe:gOf(s), zahler:s.zahler, kategorie:s.kategorie, modus:s.modus, prozent: s.modus==='Anteil in Prozent' ? (parseNum(s.prozent)===''?50:parseNum(s.prozent)) : s.prozent, files:s.files };
+    ui.smonth = v.datum.slice(0,7);
+    if(e) Object.assign(e, v); else state.split.push({ id:uid(), typ:'ausgabe', ...v });
+    await save('split'); close(); render();
+  };
+  box.oninput = ev => {
+    const t = ev.target;
+    if(t.id==='sText') s.text = t.value; else if(t.id==='sAmt') s.betrag = t.value;
+  };
+  box.onchange = ev => {
+    const t = ev.target;
+    if(t.id==='sDate') s.datum = t.value; else if(t.id==='sCat') s.kategorie = t.value; else if(t.id==='sGrp') s.gruppe = t.value;
+    else if(t.id==='sPick'){ handle([...t.files]); t.value = ''; }
+  };
+  box.onclick = async ev => {
+    const el = ev.target.closest('[data-x],[data-opt],[data-pay],[data-ich],[data-rm]'); if(!el) return;
+    const d = el.dataset;
+    if(d.rm!==undefined){ const [f] = s.files.splice(+d.rm,1); if(added.includes(f)){ added.splice(added.indexOf(f),1); dropFile(f); } else removed.push(f); paint(); }
+    else if(d.opt!==undefined){ const o = s._opts[+d.opt]; s.zahler = o[0]; s.modus = o[1]; view = 'main'; more = false; paint(); }
+    else if(d.pay){ s.zahler = d.pay; paint(); }
+    else if(d.ich){ ICH = d.ich; try{ localStorage.setItem('fin_ich', ICH); }catch(err){} paint(); }
+    else if(d.x==='cancel'){ added.forEach(dropFile); close(); }
+    else if(d.x==='save') doSave();
+    else if(d.x==='how'){ view = 'pick'; paint(); }
+    else if(d.x==='back'){ view = 'main'; more = false; paint(); }
+    else if(d.x==='more'){ more = !more; paint(); }
+    else if(d.x==='pct'){ const n = parseNum(document.getElementById('sPct').value); s.prozent = n===''?50:Math.min(100,Math.max(0,n)); s.modus = 'Anteil in Prozent'; view = 'main'; more = false; paint(); }
+    else if(d.x==='file') document.getElementById('sPick').click();
+    else if(d.x==='del'){ if(!confirm('Wirklich löschen?')) return; for(const f of (e.files||[])) await dropFile(f); state.split = state.split.filter(x=>x!==e); await save('split'); close(); render(); }
+  };
+  ov.hidden = false; modalOpen = true; paint();
+  if(!/Mobi|iPad|iPhone/.test(navigator.userAgent)) document.getElementById('sText').focus();
+}
+function editAusgleich(id){
+  const e = id ? state.split.find(x=>x.id===id) : null, gid = e ? gOf(e) : (ui.sgroup||'solo'), n = netChristian(entriesOf(gid).filter(x=>x!==e));
+  const vals = e || { von: n>0 ? 'Julia' : 'Christian', betrag: Math.round(Math.abs(n)*100)/100 || '', datum: todayStr() };
+  openForm({ title: e ? 'Ausgleich bearbeiten' : 'Ausgleich buchen', values:vals,
+    fields:[{k:'von',l:'Wer hat überwiesen',t:'select',o:PERSONS,w:1},{k:'betrag',l:'Betrag in €',t:'num',req:true,w:1},{k:'datum',l:'Datum',t:'date',req:true}],
+    onSave: async v=>{
+      const an = v.von==='Christian' ? 'Julia' : 'Christian';
+      ui.smonth = (v.datum||todayStr()).slice(0,7);
+      if(e) Object.assign(e,v,{an}); else state.split.push({ id:uid(), typ:'ausgleich', text:'Ausgleich', gruppe:gid, ...v, an });
+      await save('split'); render(); },
+    onDelete: e ? async()=>{ state.split = state.split.filter(x=>x!==e); await save('split'); render(); } : null });
+}
+
+function allFiles(){
+  const out = [];
+  const add = (files, src) => (files||[]).forEach(f=>out.push({ f, src }));
+  state.loans.forEach(l=>add(l.files, 'Kredit, '+l.bank));
+  state.projects.forEach(p=>{ add(p.files, 'Haus, '+p.name); (p.ausgaben||[]).forEach(a=>add(a.files, 'Haus, '+p.name)); });
+  state.tax.belege.forEach(b=>add(b.files, 'Steuern '+b.jahr+', '+(b.person||'Christian')));
+  state.docs.forEach(d=>add(d.files, 'Dokument, '+d.art));
+  state.split.forEach(e=>add(e.files, 'Teilen, '+(e.text||'Ausgleich')));
+  return out.sort((a,b)=>(b.f.at||0)-(a.f.at||0));
+}
+function vDocs(){
+  const D = state.docs, F = allFiles();
+  let h = `<div class="row"><div><h2>Dokumente</h2><div class="muted small">Verträge, Versicherungen und alles andere. Dateien aus Kredit, Haus und Steuern erscheinen unten automatisch.</div></div><button class="btn" data-act="adddoc">Dokument hinzufügen</button></div>`;
+  if(D.length) h += `<div class="lines" style="margin-top:16px">${D.map(d=>`<button data-act="editdoc" data-id="${d.id}"><span>${esc(d.titel)} <span class="muted small">(${esc(d.art)}${(d.files||[]).length?', '+d.files.length+' Datei'+(d.files.length>1?'en':''):''})</span></span><span class="muted small">${d.datum?dt(d.datum):''}</span></button>`).join('')}</div>`;
+  h += `<h3 style="margin-top:26px">Alle Dateien (${F.length})</h3><input class="search" id="q" placeholder="Suchen nach Name oder Herkunft" aria-label="Suchen">`;
+  h += F.length ? `<table id="ft">${F.map(x=>`<tr data-s="${esc((x.f.name+' '+x.src).toLowerCase())}"><td><a href="${esc(x.f.url)}" target="_blank" rel="noopener" style="color:var(--petrol)">${esc(x.f.name)}</a></td><td class="muted">${esc(x.src)}</td><td class="r muted small">${x.f.at?new Date(x.f.at).toLocaleDateString('de-DE'):''}</td></tr>`).join('')}</table>` : `<div class="empty">Noch keine Dateien hochgeladen.</div>`;
+  h += `<p style="margin-top:28px"><button class="btn ghost sm" data-act="backup">Daten als Datei sichern</button></p>`;
+  return h;
+}
+
+/* ---------- Formulare ---------- */
+const F_LOAN = [
+  { k:'bank', l:'Bank', req:true, w:1 }, { k:'name', l:'Bezeichnung (zum Beispiel Hauptdarlehen)', w:1 },
+  { k:'summe', l:'Darlehen in €', t:'num', req:true, w:1 }, { k:'zins', l:'Zinssatz in Prozent pro Jahr', t:'num', req:true, w:1 },
+  { k:'rate', l:'Rate im Monat in €', t:'num', req:true, w:1 }, { k:'start', l:'Auszahlung oder Start', t:'date', w:1 },
+  { k:'zinsbindungJahre', l:'Zinsbindung in Jahren', t:'num', w:1 }, { k:'zinsbindung', l:'oder Zinsbindung bis (Datum)', t:'date', w:1 },
+  { k:'tilgungsfrei', l:'Tilgungsfreie Monate', t:'num', w:1 }, { k:'standDatum', l:'Stand laut Bank am', t:'date', w:1 },
+  { k:'standBetrag', l:'Restschuld laut Bank in €', t:'num', w:1 }, { k:'notiz', l:'Notiz', t:'area' }
+];
+function editLoan(id){
+  const l = id ? state.loans.find(x=>x.id===id) : null;
+  openForm({ title: l ? 'Kredit bearbeiten' : 'Kredit anlegen', fields:F_LOAN, values:l||{}, files:l?l.files||[]:[], folder:'kredit',
+    onSave: async (v,files)=>{ if(l) Object.assign(l,v,{files}); else state.loans.push({ id:uid(), sonder:[], ...v, files }); await save('loans'); render(); },
+    onDelete: l ? async()=>{ state.loans = state.loans.filter(x=>x!==l); await save('loans'); render(); } : null, delFiles: ()=>l.files||[] });
+}
+function addSonder(id){
+  const l = state.loans.find(x=>x.id===id);
+  openForm({ title:'Sondertilgung', fields:[{k:'datum',l:'Datum',t:'date',req:true,w:1},{k:'betrag',l:'Betrag in €',t:'num',req:true,w:1}], values:{datum:todayStr()},
+    onSave: async v=>{ (l.sonder=l.sonder||[]).push(v); await save('loans'); render(); } });
+}
+const PSTAT = ['Geplant','Läuft','Fertig'], PCAT = ['Umbau','Renovierung','Garten','Energie und Technik','Anschaffung','Investition','Reparatur','Sonstiges'];
+function editProj(id){
+  const p = id ? state.projects.find(x=>x.id===id) : null;
+  openForm({ title: p ? 'Projekt bearbeiten' : 'Projekt anlegen', values:p||{status:'Geplant',kategorie:PCAT[0]}, files:p?p.files||[]:[], folder:'haus',
+    fields:[{k:'name',l:'Name',req:true},{k:'kategorie',l:'Art',t:'select',o:PCAT,w:1},{k:'status',l:'Status',t:'select',o:PSTAT,w:1},{k:'budget',l:'Budget in € (optional)',t:'num',w:1},{k:'notiz',l:'Notiz',t:'area'}],
+    onSave: async (v,files)=>{ if(p) Object.assign(p,v,{files}); else state.projects.push({ id:uid(), ausgaben:[], ...v, files }); await save('projects'); render(); },
+    onDelete: p ? async()=>{ state.projects = state.projects.filter(x=>x!==p); await save('projects'); render(); } : null, delFiles: ()=>p?filesOf(p):[] });
+}
+function editExp(pid, i){
+  const p = state.projects.find(x=>x.id===pid), a = i!=null ? p.ausgaben[i] : null;
+  openForm({ title: a ? 'Ausgabe bearbeiten' : 'Ausgabe hinzufügen', values:a||{datum:todayStr(),steuer:'Keine',person:ui.person}, files:a?a.files||[]:[], folder:'haus',
+    fields:[{k:'text',l:'Wofür',req:true},{k:'datum',l:'Datum',t:'date',w:1},{k:'betrag',l:'Betrag in €',t:'num',req:true,w:1},
+      {k:'steuer',l:'Für die Steuer vormerken',t:'select',o:['Keine',...TAXCATS],w:1},{k:'person',l:'Steuer für',t:'select',o:PERSONS,w:1},{k:'arbeit',l:'Davon Arbeitskosten in €',t:'num',w:1}],
+    onSave: async (v,files)=>{ if(a) Object.assign(a,v,{files}); else (p.ausgaben=p.ausgaben||[]).push({ ...v, files }); await save('projects'); render(); },
+    onDelete: a ? async()=>{ p.ausgaben.splice(i,1); await save('projects'); render(); } : null, delFiles: ()=>a?a.files||[]:[] });
+}
+function editBeleg(id){
+  const b = id ? state.tax.belege.find(x=>x.id===id) : null;
+  openForm({ title: b ? 'Beleg bearbeiten' : 'Beleg hinzufügen', values:b||{jahr:ui.year,datum:todayStr(),kategorie:TAXCATS[0],person:ui.person}, files:b?b.files||[]:[], folder:'steuern',
+    fields:[{k:'titel',l:'Titel',req:true},{k:'person',l:'Für wen',t:'select',o:PERSONS,w:1},{k:'kategorie',l:'Kategorie',t:'select',o:TAXCATS,w:1},{k:'jahr',l:'Steuerjahr',t:'num',req:true,w:1},{k:'datum',l:'Datum',t:'date',w:1},
+      {k:'betrag',l:'Betrag in €',t:'num',w:1},{k:'arbeit',l:'Davon Arbeitskosten in €',t:'num',w:1},{k:'notiz',l:'Notiz',t:'area'}],
+    onSave: async (v,files)=>{ if(b) Object.assign(b,v,{files}); else state.tax.belege.push({ id:uid(), ...v, files }); ui.year = v.jahr||ui.year; ui.person = v.person||ui.person; await save('tax'); render(); },
+    onDelete: b ? async()=>{ state.tax.belege = state.tax.belege.filter(x=>x!==b); await save('tax'); render(); } : null, delFiles: ()=>b?b.files||[]:[] });
+}
+function editJahr(){
+  const y = String(ui.year), key = y+':'+ui.person, r = (state.tax.jahre||{})[key] || {art:'Offen'};
+  openForm({ title:'Steuerbescheid '+y+' für '+ui.person, values:r,
+    fields:[{k:'art',l:'Ergebnis',t:'select',o:['Offen','Erstattung','Nachzahlung']},{k:'betrag',l:'Betrag in €',t:'num',w:1},{k:'notiz',l:'Notiz',t:'area'}],
+    onSave: async v=>{ (state.tax.jahre=state.tax.jahre||{})[key]=v; await save('tax'); render(); } });
+}
+const DART = ['Vertrag','Versicherung','Rechnung','Bescheid','Kontoauszug','Sonstiges'];
+function editDoc(id){
+  const d = id ? state.docs.find(x=>x.id===id) : null;
+  openForm({ title: d ? 'Dokument bearbeiten' : 'Dokument hinzufügen', values:d||{art:DART[0],datum:todayStr()}, files:d?d.files||[]:[], folder:'dokumente',
+    fields:[{k:'titel',l:'Titel',req:true},{k:'art',l:'Art',t:'select',o:DART,w:1},{k:'datum',l:'Datum',t:'date',w:1},{k:'notiz',l:'Notiz',t:'area'}],
+    onSave: async (v,files)=>{ if(d) Object.assign(d,v,{files}); else state.docs.push({ id:uid(), ...v, files }); await save('docs'); render(); },
+    onDelete: d ? async()=>{ state.docs = state.docs.filter(x=>x!==d); await save('docs'); render(); } : null, delFiles: ()=>d?d.files||[]:[] });
+}
+
+/* ---------- Aktionen ---------- */
+document.addEventListener('click', async e => {
+  const el = e.target.closest('[data-act]'); if(!el) return;
+  const a = el.dataset.act, id = el.dataset.id, i = el.dataset.i;
+  if(a==='tab'){ ui.tab = id; render(); window.scrollTo(0,0); }
+  else if(a==='lock') lockNow();
+  else if(a==='addloan') editLoan();
+  else if(a==='editloan') editLoan(id);
+  else if(a==='sonder') addSonder(id);
+  else if(a==='delsonder'){ const l = state.loans.find(x=>x.id===id); l.sonder.splice(+i,1); await save('loans'); render(); }
+  else if(a==='addproj') editProj();
+  else if(a==='editproj') editProj(id);
+  else if(a==='done'){ const pr = state.projects.find(x=>x.id===id); pr.status = 'Fertig'; await save('projects'); render(); }
+  else if(a==='addexp') editExp(id);
+  else if(a==='editexp') editExp(id, +i);
+  else if(a==='addbeleg') editBeleg();
+  else if(a==='editbeleg') editBeleg(id);
+  else if(a==='editjahr') editJahr();
+  else if(a==='year'){ ui.year = +id; render(); }
+  else if(a==='person'){ ui.person = id; render(); }
+  else if(a==='addyear'){ const y = parseInt(prompt('Welches Steuerjahr?', String(ui.year-1)),10); if(y>1990 && y<2100){ ui.year = y; render(); } }
+  else if(a==='addsplit') editSplit();
+  else if(a==='editsplit') editSplit(id);
+  else if(a==='ausgleich') editAusgleich(id);
+  else if(a==='sgroup'){
+    ui.sgroup = id;
+    const l = entriesOf(id), cur = todayStr().slice(0,7);
+    if(l.length && !l.some(x=>(x.datum||'').slice(0,7)===cur)) ui.smonth = lastDate(l).slice(0,7);
+    render(); window.scrollTo(0,0); }
+  else if(a==='sback'){ ui.sgroup = null; render(); window.scrollTo(0,0); }
+  else if(a==='gsettled'){ ui.showSettled = !ui.showSettled; render(); }
+  else if(a==='addgroup') editGroup();
+  else if(a==='editgroup') editGroup(id);
+  else if(a==='smonth'){ const [y,m] = ui.smonth.split('-').map(Number); const d = new Date(y, m-1+(+id), 1); ui.smonth = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); render(); }
+  else if(a==='adddoc') editDoc();
+  else if(a==='editdoc') editDoc(id);
+  else if(a==='backup'){
+    const data = JSON.stringify({ loans:state.loans, projects:state.projects, tax:state.tax, docs:state.docs, ausgaben:state.split, gruppen:state.groups, exportiert:new Date().toISOString() }, null, 2);
+    const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([data],{type:'application/json'}));
+    link.download = 'finanzmappe_'+todayStr()+'.json'; link.click();
+  }
+});
+document.addEventListener('input', e => {
+  if(e.target.id!=='q') return;
+  const q = e.target.value.toLowerCase().trim();
+  document.querySelectorAll('#ft tr').forEach(r=>{ r.style.display = !q || r.dataset.s.includes(q) ? '' : 'none'; });
+});
+
+/* ---------- PIN Sperre ---------- */
+async function sha(s){
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('finanzmappe:'+s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+const lockEl = document.getElementById('lock'), pinEl = document.getElementById('pin'), msgEl = document.getElementById('pinMsg'), hintEl = document.getElementById('lockHint');
+let setup = null; // null = Eingabe, sonst Schritt der PIN Einrichtung
+function showLock(){
+  unlocked = false; document.getElementById('app').hidden = true; lockEl.hidden = false; pinEl.value=''; msgEl.textContent='';
+  if(!state.settings.pinHash){ setup = { step:1 }; hintEl.textContent = 'Lege eine PIN fest (4 bis 8 Ziffern)'; document.getElementById('pinGo').textContent='Weiter'; }
+  else { setup = null; hintEl.textContent = 'PIN eingeben'; document.getElementById('pinGo').textContent='Öffnen'; }
+  pinEl.focus();
+}
+function lockNow(){ try{ sessionStorage.removeItem('fin_ok'); }catch(e){} showLock(); }
+async function openApp(){
+  unlocked = true; lockEl.hidden = true; document.getElementById('app').hidden = false;
+  try{ sessionStorage.setItem('fin_ok','1'); }catch(e){}
+  render();
+}
+async function submitPin(){
+  const v = pinEl.value.trim(); msgEl.textContent='';
+  if(setup){
+    if(!/^\d{4,8}$/.test(v)){ msgEl.textContent = 'Bitte 4 bis 8 Ziffern eingeben.'; return; }
+    if(setup.step===1){ setup = { step:2, first:v }; pinEl.value=''; hintEl.textContent='PIN zur Bestätigung noch einmal eingeben'; return; }
+    if(v!==setup.first){ msgEl.textContent='Die PINs stimmen nicht überein.'; setup={step:1}; pinEl.value=''; hintEl.textContent='Lege eine PIN fest (4 bis 8 Ziffern)'; return; }
+    state.settings = { ...state.settings, pinHash: await sha(v) }; await save('settings'); setup=null; openApp();
+  } else {
+    if(await sha(v)===state.settings.pinHash) openApp(); else { msgEl.textContent='Falsche PIN.'; pinEl.value=''; }
+  }
+}
+document.getElementById('pinGo').onclick = submitPin;
+pinEl.addEventListener('keydown', e => { if(e.key==='Enter') submitPin(); });
+
+/* ---------- Einmaliger Import: Anschaffungsliste ---------- */
+const SEED = [
+  ['Tür Treppenhaus','Anschaffung'], ['Waschbeckenunterschrank Bad 2. OG','Anschaffung'], ['Spiegel Bad 2. OG','Anschaffung'], ['Vitrinenschrank Superfreunde und Büro','Anschaffung'],
+  ['Gartenhäuschen','Garten'], ['Hecke zur Abgrenzung','Garten'], ['Verkleidung Betonklotz','Garten'], ['Pflanzen, insb. Pampasgras','Garten']
+];
+async function seedOnce(){
+  if(state.settings.seedAnschaffungen) return;
+  const have = new Set(state.projects.map(p=>p.name));
+  SEED.forEach(([name,kategorie])=>{ if(!have.has(name)) state.projects.push({ id:uid(), name, kategorie, status:'Geplant', budget:'', notiz:'', ausgaben:[], files:[] }); });
+  state.settings = { ...state.settings, seedAnschaffungen:true };
+  await save('projects'); await save('settings');
+}
+
+async function fixBank(){
+  const l = state.loans.find(x=>x.bank==='Hausbank' && x.name==='Annuitätendarlehen');
+  if(!l) return;
+  l.bank = 'ING'; l.notiz = String(l.notiz||'').replace(' Bank bitte ergänzen.','');
+  await save('loans');
+}
+async function seedKrediteOnce(){
+  if(state.settings.seedKredite) return;
+  if(!state.loans.length){
+    state.loans.push(
+      { id:uid(), bank:'ING', name:'Annuitätendarlehen', summe:445000, zins:1.16, rate:1171.83, start:'', zinsbindungJahre:20, tilgungsfrei:'', standDatum:'', standBetrag:'', notiz:'Anfangstilgung 2,00 Prozent, Auszahlung 100 Prozent.', sonder:[], files:[] },
+      { id:uid(), bank:'IB.SH', name:'KfW Energieeffizient Bauen', summe:120000, zins:0.95, rate:395, start:'', zinsbindungJahre:10, tilgungsfrei:12, standDatum:'', standBetrag:'', notiz:'Anfangstilgung 3,00 Prozent, 1 tilgungsfreies Jahr, Gesamtlaufzeit 30 Jahre.', sonder:[], files:[] }
+    );
+    await save('loans');
+  }
+  state.settings = { ...state.settings, seedKredite:true };
+  await save('settings');
+}
+
+/* ---------- Start ---------- */
+async function init(){
+  try{
+    for(const k of Object.keys(DEF)){ const v = await loadKey(k); state[k] = v ?? clone(DEF[k]); last[k] = JSON.stringify(state[k]); }
+  }catch(e){ lockEl.hidden=false; msgEl.textContent='Verbindung zur Datenbank fehlgeschlagen.'; return; }
+  await seedOnce();
+  await seedKrediteOnce();
+  await fixBank();
+  await seedGruppenOnce();
+  let ok = false; try{ ok = sessionStorage.getItem('fin_ok')==='1'; }catch(e){}
+  if(ok && state.settings.pinHash) openApp(); else showLock();
+  setInterval(async()=>{
+    if(document.hidden || modalOpen || !unlocked || busy) return;
+    try{
+      let ch = false;
+      for(const k of ['loans','projects','tax','docs','split','groups']){
+        const v = await loadKey(k); const j = JSON.stringify(v ?? DEF[k]);
+        if(j!==last[k]){ state[k] = v ?? clone(DEF[k]); last[k] = j; ch = true; }
+      }
+      if(ch && !modalOpen && !busy) render();
+    }catch(e){}
+  }, 5000);
+}
+init();
+</script>
+</body>
+</html>
